@@ -15,7 +15,7 @@ export const Products = (): React.JSX.Element => {
                 {!isLoading ?
                     <Row xs={1} md={3} className="g-4">
                         {products.map((product: IProduct, index: number) =>
-                            <Col key={index}>
+                            <Col key={`${index}-product`}>
                                 <Product {...product} />
                             </Col>
                         )}

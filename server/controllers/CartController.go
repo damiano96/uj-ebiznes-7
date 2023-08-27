@@ -8,6 +8,15 @@ import (
 	"strconv"
 )
 
+const (
+	ProductNotFoundInCart  = "Product not found in cart"
+	ProductRemovedFromCart = "Product removed from cart"
+	CartItemNotFound       = "Cart item not found"
+	CartIsEmpty            = "Cart is empty"
+	CartClear              = "Cart cleared"
+	CartItemUpdated        = "Cart item updated"
+)
+
 func GetCart(c echo.Context) error {
 	var db = database.GetDB()
 	var carts []models.Cart
@@ -36,8 +45,9 @@ func AddProductToCart(c echo.Context) error {
 	}
 
 	db.Preload("Product").
-		Preload("Product.Category").
-		Find(&cart, "product_id = ?", product.ID)
+		Preload("Product.Category")
+
+	db.Find(&cart, "product_id = ?", product.ID)
 
 	if cart.ID == 0 {
 		cart = models.Cart{
@@ -61,16 +71,16 @@ func RemoveProductFromCart(c echo.Context) error {
 	db.Find(&cart, "product_id = ?", productID)
 
 	if err != nil {
-		return c.JSON(http.StatusNotFound, "Product not found in cart")
+		return c.JSON(http.StatusNotFound, ProductNotFoundInCart)
 	}
 
 	if cart.ID == 0 {
-		return c.JSON(http.StatusNotFound, "Product not found in cart")
+		return c.JSON(http.StatusNotFound, ProductNotFoundInCart)
 	}
 
 	db.Delete(&cart)
 
-	return c.JSON(http.StatusOK, "Product removed from cart")
+	return c.JSON(http.StatusOK, ProductRemovedFromCart)
 }
 
 func UpdateCartItem(c echo.Context) error {
@@ -80,13 +90,14 @@ func UpdateCartItem(c echo.Context) error {
 
 	err := c.Bind(&cart)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, "Cart item not found")
+		return c.JSON(http.StatusNotFound, CartItemNotFound)
 	}
 
+	// extract to function
 	db.Find(&cart2, "product_id = ?", cart.ProductID)
 
 	if cart2.ID == 0 {
-		return c.JSON(http.StatusNotFound, "Product not found in cart")
+		return c.JSON(http.StatusNotFound, ProductNotFoundInCart)
 	}
 
 	if cart.Quantity == 0 {
@@ -96,7 +107,7 @@ func UpdateCartItem(c echo.Context) error {
 		db.Save(&cart2)
 	}
 
-	return c.JSON(http.StatusOK, "Cart item updated")
+	return c.JSON(http.StatusOK, CartItemUpdated)
 }
 
 func ClearCart(c echo.Context) error {
@@ -106,10 +117,10 @@ func ClearCart(c echo.Context) error {
 	db.Find(&carts)
 
 	if len(carts) == 0 {
-		return c.JSON(http.StatusNotFound, "Cart is empty")
+		return c.JSON(http.StatusNotFound, CartIsEmpty)
 	}
 
 	db.Delete(&carts)
 
-	return c.JSON(http.StatusOK, "Cart cleared")
+	return c.JSON(http.StatusOK, CartClear)
 }
