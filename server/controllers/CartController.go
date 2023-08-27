@@ -17,6 +17,10 @@ const (
 	CartItemUpdated        = "Cart item updated"
 )
 
+const (
+	productIdKey = "product_id = ?"
+)
+
 func GetCart(c echo.Context) error {
 	var db = database.GetDB()
 	var carts []models.Cart
@@ -47,7 +51,7 @@ func AddProductToCart(c echo.Context) error {
 	db.Preload("Product").
 		Preload("Product.Category")
 
-	db.Find(&cart, "product_id = ?", product.ID)
+	db.Find(&cart, productIdKey, product.ID)
 
 	if cart.ID == 0 {
 		cart = models.Cart{
@@ -68,7 +72,7 @@ func RemoveProductFromCart(c echo.Context) error {
 	var cart models.Cart
 	var productID, err = strconv.Atoi(c.Param("productID"))
 
-	db.Find(&cart, "product_id = ?", productID)
+	db.Find(&cart, productIdKey, productID)
 
 	if err != nil {
 		return c.JSON(http.StatusNotFound, ProductNotFoundInCart)
@@ -94,7 +98,7 @@ func UpdateCartItem(c echo.Context) error {
 	}
 
 	// extract to function
-	db.Find(&cart2, "product_id = ?", cart.ProductID)
+	db.Find(&cart2, productIdKey, cart.ProductID)
 
 	if cart2.ID == 0 {
 		return c.JSON(http.StatusNotFound, ProductNotFoundInCart)
