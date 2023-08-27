@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useMemo, useState} from "react";
 import { CartContext } from "./CartContext";
 import {addToCart, clearCart, getCart, removeFromCart, updateCart} from "../../services/apiCalls";
 import {ICart} from "../../interfaces/ICart";
@@ -69,16 +69,18 @@ export const CartProvider = ({children}: {children: React.ReactNode}) => {
         }
     }
 
+    const providerValues = useMemo(() => ({
+        shopCart,
+        addProductToCart,
+        clearShopCart,
+        increaseCountOfItem,
+        reduceCountOfItem,
+        removeItemFromCart,
+        getShopCartPrice
+    }), [shopCart]);
+
     return (
-         <CartContext.Provider value={{
-             shopCart,
-             addProductToCart,
-             clearShopCart,
-             increaseCountOfItem,
-             reduceCountOfItem,
-             removeItemFromCart,
-             getShopCartPrice
-         }}>
+         <CartContext.Provider value={providerValues}>
              {children}
          </CartContext.Provider>
     )

@@ -1,7 +1,6 @@
 import React from "react";
 import { Button, Card } from "react-bootstrap";
 import { BsCartPlus } from "react-icons/bs";
-import './styles/product.css';
 import {useCart} from "../../../context/hooks/useCart";
 import {IProduct} from "../../../interfaces/IProduct";
 
